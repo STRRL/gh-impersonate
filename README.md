@@ -4,9 +4,22 @@
 
 The target GitHub UI attribution is `user with app`, not app-only bot attribution.
 
-## Install Locally
+## Install
+
+Install a released build:
 
 ```sh
+gh extension install STRRL/gh-impersonate
+```
+
+This repository is a precompiled Go extension. Release binaries are published by the release workflow when a `v*` tag is pushed.
+
+## Develop Locally
+
+Build the root executable before installing from a local checkout:
+
+```sh
+go build -o gh-impersonate ./cmd/gh-impersonate
 gh extension install .
 gh impersonate --help
 ```
