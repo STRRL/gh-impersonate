@@ -1,26 +1,89 @@
 # gh-impersonate
 
-A GitHub CLI extension scaffold for `gh impersonate`.
+`gh-impersonate` is a GitHub CLI extension for running local agent GitHub operations through a Delegated Agent Identity: the human user authorizes a GitHub App, and agent `gh` calls run with that GitHub App user token.
 
-## Install
+The target GitHub UI attribution is `user with app`, not app-only bot attribution.
 
-Install from this local checkout:
+## Install Locally
 
 ```sh
 gh extension install .
+gh impersonate --help
 ```
 
-## Usage
+## Configure
+
+MVP profile configuration is read from:
+
+```text
+${XDG_CONFIG_HOME:-$HOME/.config}/gh-impersonate/config.yaml
+```
+
+For a Bring Your Own GitHub App profile, enable Device Flow on the GitHub App and add its client ID:
+
+```yaml
+profiles:
+  default:
+    client_id: Iv1.xxxxx
+  work:
+    client_id: Iv1.yyyyy
+```
+
+Only `client_id` is supported in the MVP. The GitHub host is fixed to `github.com`.
+
+If `profiles.default` is absent, `default` falls back to the built-in shared GitHub App client ID. Development builds do not include a shared client ID yet, so configure `profiles.default.client_id` locally.
+
+## Login
 
 ```sh
-gh impersonate
+gh impersonate auth login
+gh impersonate auth status
 ```
 
-## Development
+Use another profile:
 
-The extension entrypoint is the executable file named `gh-impersonate` at the repository root. GitHub CLI maps the repository name `gh-impersonate` to the command `gh impersonate`.
+```sh
+gh impersonate --profile work auth login
+gh impersonate --profile work auth status
+```
 
-See the official GitHub CLI extension docs:
+Credentials are stored separately from `gh auth`:
 
-- https://docs.github.com/en/github-cli/github-cli/creating-github-cli-extensions
-- https://cli.github.com/manual/gh_extension_create
+```text
+${XDG_CONFIG_HOME:-$HOME/.config}/gh-impersonate/credentials/<profile>.json
+```
+
+`auth logout` deletes the local credential file. It does not revoke the GitHub authorization.
+
+## Use With Agents
+
+Load the alias wrapper in the parent shell:
+
+```sh
+eval "$(gh impersonate alias)"
+export GH_IMPERSONATE=1
+```
+
+Then agent child processes can call `gh` normally:
+
+```sh
+gh pr comment 123 --body "Handled by the agent."
+```
+
+Use a fixed profile:
+
+```sh
+eval "$(gh impersonate --profile work alias)"
+export GH_IMPERSONATE=1
+```
+
+The wrapper only activates when `GH_IMPERSONATE=1` is present. Without it, `gh` calls pass through unchanged.
+
+## Behavior
+
+- `--profile` follows Viper-style precedence over `GH_IMPERSONATE_PROFILE`.
+- `gh impersonate`, `gh auth`, `gh extension`, `gh help`, `gh version`, and `gh --version` bypass impersonation.
+- Every other `gh` command, including `gh api`, uses the selected Delegated Agent Identity when `GH_IMPERSONATE=1`.
+- Impersonated commands inject only `GH_TOKEN`.
+- If `GH_TOKEN` already exists, gh-impersonate overrides it for the child command and prints a warning to stderr.
+- Credential resolution refreshes expired credentials and writes refreshed credentials back atomically.
