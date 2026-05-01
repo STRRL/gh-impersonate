@@ -1,0 +1,27 @@
+gh-impersonate
+  5d81c90ab59e6cf2 2,4-5,7-9,11-12
+go.mod
+  5d81c90ab59e6cf2 1-24
+internal/impersonate/github.go
+  5d81c90ab59e6cf2 1-196
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "57b85b9b26a2a0d0a0bb97b5f763c5b354b237ae",
+  "prompts": {
+    "5d81c90ab59e6cf2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019dc51c-4cf4-7d22-ad08-bd5a9bff0f67",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Zhiqiang ZHOU",
+      "messages": [],
+      "total_additions": 577,
+      "total_deletions": 380,
+      "accepted_lines": 231,
+      "overriden_lines": 0
+    }
+  }
+}
