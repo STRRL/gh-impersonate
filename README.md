@@ -100,3 +100,9 @@ The wrapper only activates when `GH_IMPERSONATE=1` is present. Without it, `gh` 
 - Impersonated commands inject only `GH_TOKEN`.
 - If `GH_TOKEN` already exists, gh-impersonate overrides it for the child command and prints a warning to stderr.
 - Credential resolution refreshes expired credentials and writes refreshed credentials back atomically.
+
+## Known Limitations
+
+Delegated Agent Identity only works on repositories where the selected GitHub App is installed. GitHub App user tokens are effectively limited by both the human user's access and the App installation's repository access.
+
+For external community repositories where you cannot install the GitHub App, `gh-impersonate` cannot create issues, comments, PRs, or other repository-scoped resources with `user with app` attribution. Use normal `gh` user identity for those repositories, or install/configure the GitHub App where you control the repository.
